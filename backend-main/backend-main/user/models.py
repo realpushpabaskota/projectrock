@@ -41,6 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, blank=True, null=True)
     citizenship_no = models.CharField(max_length=50, blank=True, null=True)
     image = models.ImageField(upload_to='user_images/', blank=True, null=True)
+    
 
     # Permissions and status fields
     is_active = models.BooleanField(default=True)

@@ -1,35 +1,21 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const VoterRoll = () => {
     const [voters, setVoters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedVoter, setSelectedVoter] = useState(null);
-
-    // State for adding a new voter
-    const [formData, setFormData] = useState({
-        fullName: "",
-        middleName: "",
-        lastName: "",
-        permanentAddress: "",
-        temporaryAddress: "",
-        age: "",
-        dob: "",
-        voterImage: null,
-        bloodGroup: "",
-    });
+    const token = localStorage.getItem('accessToken'); // Authentication token
 
     useEffect(() => {
-        // Fetch the list of voters from the backend
-        fetch("http://127.0.0.1:8000/voters/list/")
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch voters.");
-                }
-                return response.json();
+        // Fetch the list of voters from the backend using Axios
+        axios
+            .get("http://127.0.0.1:8000/voters/voters/", {
+                headers: { Authorization: `Bearer ${token}` },
             })
-            .then((data) => {
-                setVoters(data);
+            .then((response) => {
+                setVoters(response.data);
                 setLoading(false);
             })
             .catch((error) => {
@@ -37,52 +23,6 @@ const VoterRoll = () => {
                 setLoading(false);
             });
     }, []);
-
-    const handleFormChange = (e) => {
-        const { name, value, type, files } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === "file" ? files[0] : value,
-        });
-    };
-
-    const handleAddVoter = (e) => {
-        e.preventDefault();
-        const data = new FormData();
-        for (const key in formData) {
-            data.append(key, formData[key]);
-        }
-
-        fetch("http://127.0.0.1:8000/voters/create/", {
-            method: "POST",
-            body: data,
-        })
-            .then((response) => {
-                if (response.ok) {
-                    alert("Voter added successfully!");
-                    setFormData({
-                        fullName: "",
-                        middleName: "",
-                        lastName: "",
-                        permanentAddress: "",
-                        temporaryAddress: "",
-                        age: "",
-                        dob: "",
-                        voterImage: null,
-                        bloodGroup: "",
-                    });
-                    return response.json();
-                } else {
-                    alert("Failed to add voter.");
-                }
-            })
-            .then((newVoter) => {
-                setVoters([...voters, newVoter]); // Add new voter to the list
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-            });
-    };
 
     const handleSelectVoter = (voter) => {
         setSelectedVoter(voter);
@@ -102,7 +42,7 @@ const VoterRoll = () => {
             <table>
                 <thead>
                     <tr>
-                        <th>Voter Number</th>
+                        <th>Voter ID</th>
                         <th>Full Name</th>
                         <th>Age</th>
                         <th>Date of Birth</th>
@@ -114,8 +54,8 @@ const VoterRoll = () => {
                 </thead>
                 <tbody>
                     {voters.map((voter) => (
-                        <tr key={voter.voter_number}>
-                            <td>{voter.voter_number}</td>
+                        <tr key={voter.voter_id}>
+                            <td>{voter.voter_id}</td>
                             <td>{voter.full_name}</td>
                             <td>{voter.age}</td>
                             <td>{voter.dob}</td>
@@ -124,7 +64,7 @@ const VoterRoll = () => {
                             <td>
                                 {voter.voter_image ? (
                                     <img
-                                        src={`http://127.0.0.1:8000${voter.voter_image}`}
+                                        src={voter.voter_image}
                                         alt="Voter"
                                         width="50"
                                     />
@@ -146,7 +86,7 @@ const VoterRoll = () => {
                 <div>
                     <h3>Selected Voter</h3>
                     <p>
-                        Voter Number: {selectedVoter.voter_number}<br />
+                        Voter ID: {selectedVoter.voter_id}<br />
                         Full Name: {selectedVoter.full_name}<br />
                         Age: {selectedVoter.age}<br />
                         Date of Birth: {selectedVoter.dob}<br />
@@ -155,88 +95,6 @@ const VoterRoll = () => {
                     </p>
                 </div>
             )}
-
-            <h3>Add Voter</h3>
-            <form onSubmit={handleAddVoter} encType="multipart/form-data">
-                <label>Full Name:</label>
-                <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleFormChange}
-                    required
-                />
-                <br />
-                <label>Middle Name:</label>
-                <input
-                    type="text"
-                    name="middleName"
-                    value={formData.middleName}
-                    onChange={handleFormChange}
-                />
-                <br />
-                <label>Last Name:</label>
-                <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleFormChange}
-                    required
-                />
-                <br />
-                <label>Permanent Address:</label>
-                <input
-                    type="text"
-                    name="permanentAddress"
-                    value={formData.permanentAddress}
-                    onChange={handleFormChange}
-                    required
-                />
-                <br />
-                <label>Temporary Address:</label>
-                <input
-                    type="text"
-                    name="temporaryAddress"
-                    value={formData.temporaryAddress}
-                    onChange={handleFormChange}
-                />
-                <br />
-                <label>Age:</label>
-                <input
-                    type="number"
-                    name="age"
-                    value={formData.age}
-                    onChange={handleFormChange}
-                    required
-                />
-                <br />
-                <label>Date of Birth:</label>
-                <input
-                    type="date"
-                    name="dob"
-                    value={formData.dob}
-                    onChange={handleFormChange}
-                    required
-                />
-                <br />
-                <label>Voter Image:</label>
-                <input
-                    type="file"
-                    name="voterImage"
-                    onChange={handleFormChange}
-                    accept="image/*"
-                />
-                <br />
-                <label>Blood Group:</label>
-                <input
-                    type="text"
-                    name="bloodGroup"
-                    value={formData.bloodGroup}
-                    onChange={handleFormChange}
-                />
-                <br />
-                <button type="submit">Add Voter</button>
-            </form>
         </div>
     );
 };

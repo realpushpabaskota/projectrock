@@ -167,3 +167,10 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3001',
     'http://localhost:3000',
 ]
+
+# Media
+# ------------------------------------------------------------------------------ 
+# https://docs.djangoproject.com/en/dev/ref/settings/#media-root 
+MEDIA_ROOT = str(BASE_DIR / "media")
+# https://docs.djangoproject.com/en/dev/ref/settings/#media-url 
+MEDIA_URL = "/media/"

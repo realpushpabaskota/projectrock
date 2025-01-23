@@ -3,12 +3,21 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Voter
 from .serializers import VoterSerializer
 
-# POST: Create a new voter
+
 class VoterCreateView(CreateAPIView):
     queryset = Voter.objects.all()
     serializer_class = VoterSerializer
     permission_classes = [IsAuthenticated]  # Ensure only authenticated users can create voters
 
+    def perform_create(self, serializer):
+        """
+        Override perform_create to automatically associate the logged-in user
+        with the Voter instance upon creation.
+        """
+        user = self.request.user  # Get the logged-in user from the request
+        # The serializer will handle the association of the user with the 'userid' field
+        serializer.save(userid=user)  # Ensure that the 'userid' is set to the logged-in user
+        
 # GET: Retrieve a specific voter by ID
 class VoterRetrieveView(RetrieveAPIView):
     queryset = Voter.objects.all()

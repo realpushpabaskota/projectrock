@@ -10,6 +10,8 @@
         "react-router-dom": "^6.28.1"
     },
     "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+        "hardhat": "^2.22.18",
         "react-scripts": "^5.0.1"
     },
     "scripts": {
